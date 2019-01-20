@@ -1,6 +1,8 @@
 #
 # ~/.bashrc
 #
+
+# If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
 RED="\[$(tput setaf 1)\]"
@@ -10,22 +12,19 @@ CLEAR="\[$(tput sgr0)\]"
 
 exitstatus() {
 	status=$?
-	if [[ $status != 0 ]]; then
-		echo "[ ${status} ]"
-	fi
+	[[ $status != 0 ]] && echo "[ ${status} ]"
 }
 
 get_mem() {
-	awk '/MemFree/{print $2 " " $3}' /proc/meminfo
+	awk '/MemFree/{print $2}' /proc/meminfo
 }
+
+[[ $UID == 0 ]]	&& PS1="${RED}"'$(exitstatus)'"${CLEAR}[ $(get_mem) ]${ORANGE}[ ${RED}\u${CLEAR}@\h \W${ORANGE} ]${CLEAR}> " \
+		|| PS1="${RED}"'$(exitstatus)'"${CLEAR}[ $(get_mem) ]${ORANGE}[${CLEAR} \u@\h \W${ORANGE} ]${CLEAR}> "
 
 [ -e /usr/share/bash-completion/bash_completion ] && source /usr/share/bash-completion/bash_completion
 
 alias ls='ls --color=auto'
 alias l='ls -ahl'
 alias vi='vim'
-if [ "$UID" == "0" ]; then
-	PS1="${RED}"'$(exitstatus)'"${CLEAR}[ $(get_mem) ]${ORANGE}[ ${RED}\u${CLEAR}@\h \W${ORANGE} ]${CLEAR}> "
-else
-	PS1="${RED}"'$(exitstatus)'"${CLEAR}[ $(get_mem) ]${ORANGE}[${CLEAR} \u@\h \W${ORANGE} ]${CLEAR}> "
-fi
+
